@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         self.resize(1400, 900)
 
         self.scene = CanvasScene(self)
-        self.view = CanvasView(self.scene)
+        self.view = QGraphicsView(self.scene)
         self.view.setRenderHints(self.view.renderHints())
 
         self.image_items: dict[str, ImageItem] = {}
