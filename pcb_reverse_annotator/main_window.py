@@ -68,6 +68,31 @@ class CanvasScene(QGraphicsScene):
         return None
 
 
+class CanvasView(QGraphicsView):
+    """主画布视图，扩展 Ctrl + 滚轮缩放能力。"""
+
+    def __init__(self, scene: QGraphicsScene) -> None:
+        """初始化视图并设置默认缩放锚点策略。"""
+        super().__init__(scene)
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+
+    def wheelEvent(self, event) -> None:
+        """按住 Ctrl 时以光标为中心缩放整个视图。"""
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            angle = event.angleDelta().y()
+            if angle == 0:
+                event.accept()
+                return
+
+            factor = 1.15 if angle > 0 else 1 / 1.15
+            self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+            self.scale(factor, factor)
+            self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
+            event.accept()
+            return
+        super().wheelEvent(event)
+
+
 class MainWindow(QMainWindow):
     """PCB Reverse Annotator 主窗口。"""
 
