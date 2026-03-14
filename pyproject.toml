@@ -1,0 +1,15 @@
+[project]
+name = "pcb-reverse-annotator"
+version = "0.1.0"
+description = "PCB image overlay and annotation tool built with PySide6"
+requires-python = ">=3.11"
+dependencies = [
+  "PySide6>=6.6",
+]
+
+[project.scripts]
+pcb-reverse-annotator = "pcb_reverse_annotator.main_window:run"
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
