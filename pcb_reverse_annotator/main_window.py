@@ -72,35 +72,22 @@ class CanvasView(QGraphicsView):
     """主画布视图，扩展 Ctrl + 滚轮缩放能力。"""
 
     def __init__(self, scene: QGraphicsScene) -> None:
-        """初始化视图并设置缩放边界。"""
+        """初始化视图并设置默认缩放锚点策略。"""
         super().__init__(scene)
-        self._zoom_min = 0.05
-        self._zoom_max = 40.0
-
-    def _current_view_scale(self) -> float:
-        """获取当前视图的统一缩放系数。"""
-        return self.transform().m11()
+        self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
 
     def wheelEvent(self, event) -> None:
         """按住 Ctrl 时以光标为中心缩放整个视图。"""
         if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            delta_y = event.angleDelta().y()
-            if delta_y == 0:
-                delta_y = event.pixelDelta().y()
-            if delta_y == 0:
+            angle = event.angleDelta().y()
+            if angle == 0:
                 event.accept()
                 return
 
-            scene_pos_before = self.mapToScene(event.position().toPoint())
-            factor = 1.15 if delta_y > 0 else 1 / 1.15
-            current = self._current_view_scale()
-            target = max(self._zoom_min, min(self._zoom_max, current * factor))
-            safe_factor = target / current if current > 0 else 1.0
-            self.scale(safe_factor, safe_factor)
-
-            scene_pos_after = self.mapToScene(event.position().toPoint())
-            delta_scene = scene_pos_after - scene_pos_before
-            self.translate(delta_scene.x(), delta_scene.y())
+            factor = 1.15 if angle > 0 else 1 / 1.15
+            self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
+            self.scale(factor, factor)
+            self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorViewCenter)
             event.accept()
             return
         super().wheelEvent(event)
@@ -116,7 +103,7 @@ class MainWindow(QMainWindow):
         self.resize(1400, 900)
 
         self.scene = CanvasScene(self)
-        self.view = CanvasView(self.scene)
+        self.view = QGraphicsView(self.scene)
         self.view.setRenderHints(self.view.renderHints())
 
         self.image_items: dict[str, ImageItem] = {}
